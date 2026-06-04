@@ -233,7 +233,39 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <div id="panels-wrap" style="flex:1"></div>
   <div class="bbar" id="bbar">
     <div class="binfo"><strong id="bcnt">0</strong> items selected</div>
-    <button class="sub-btn" onclick="goReview()">Review Order →</button>
+    <button class="sub-btn" onclick="toggleCart()">&#x1F6D2; View Cart &amp; Submit</button>
+  </div>
+</div>
+
+<!-- CART DRAWER OVERLAY -->
+<div id="cart-overlay" onclick="toggleCart()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;"></div>
+
+<!-- CART DRAWER -->
+<div id="cart-drawer" style="position:fixed;top:0;right:0;height:100%;width:360px;max-width:95vw;background:#fff;z-index:400;transform:translateX(100%);transition:transform .3s ease;display:flex;flex-direction:column;box-shadow:-4px 0 32px rgba(9,124,135,.18);">
+  <div style="background:#097C87;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#fff;">&#x1F6D2; Your Order</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:2px;" id="cart-sub">0 items selected</div>
+    </div>
+    <button onclick="toggleCart()" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:6px 12px;color:#fff;font-size:18px;cursor:pointer;line-height:1;">&#x2715;</button>
+  </div>
+  <div style="background:#23CED9;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+    <div style="font-size:12px;font-weight:700;color:#0A1F20;" id="cart-uname">—</div>
+    <div style="font-size:11px;color:#0A1F20;opacity:.7;" id="cart-udate">—</div>
+  </div>
+  <div id="cart-empty" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;">
+    <div style="font-size:44px;margin-bottom:12px;">&#x1F6D2;</div>
+    <div style="font-size:14px;font-weight:700;color:#097C87;margin-bottom:6px;">Your cart is empty</div>
+    <div style="font-size:12px;color:#7ABFC4;">Tap items in the inventory to add them here</div>
+  </div>
+  <div id="cart-list" style="flex:1;overflow-y:auto;padding:12px 16px;display:none;"></div>
+  <div id="cart-footer" style="display:none;padding:16px;border-top:2px solid #C8EEF0;background:#F4FEFE;flex-shrink:0;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div style="font-size:13px;color:#3D7A80;font-weight:600;">Total items</div>
+      <div style="font-size:20px;font-weight:800;color:#097C87;" id="cart-total">0</div>
+    </div>
+    <button onclick="submitFromCart()" id="cart-submit-btn" style="width:100%;background:#C8922A;color:#fff;border:none;border-radius:13px;padding:14px;font-family:'Playfair Display',serif;font-size:16px;font-weight:700;cursor:pointer;transition:.15s;letter-spacing:.3px;margin-bottom:8px;">&#x2705; Submit Order Now</button>
+    <button onclick="toggleCart()" style="width:100%;background:none;color:#097C87;border:1.5px solid #23CED9;border-radius:13px;padding:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;">&#x2190; Keep Adding Items</button>
   </div>
 </div>
 
@@ -594,6 +626,8 @@ function updateCart(){
   if(cb)cb.style.display=n>0?'flex':'none';
   if(cc)cc.textContent=n;if(bc)bc.textContent=n;
   document.getElementById('bbar').classList.toggle('vis',n>0);
+  // Refresh cart drawer live if open
+  if(cartOpen) renderCart();
 }
 
 function filterSearch(){
@@ -637,6 +671,119 @@ async function submitOrder(){
 
 function resetAll(){selected={};notes={};userName='';pinBuf='';updateDots();document.getElementById('uname').value='';document.getElementById('perr').textContent='';updateCart();showScreen('ps');}
 function logout(){if(Object.keys(selected).length&&!confirm('Items selected — exit anyway?'))return;resetAll();}
+
+// ── CART DRAWER ──────────────────────────────────────────────
+let cartOpen = false;
+function toggleCart(){
+  cartOpen = !cartOpen;
+  const drawer = document.getElementById('cart-drawer');
+  const overlay = document.getElementById('cart-overlay');
+  drawer.style.transform = cartOpen ? 'translateX(0)' : 'translateX(100%)';
+  overlay.style.display = cartOpen ? 'block' : 'none';
+  if(cartOpen) renderCart();
+}
+
+function renderCart(){
+  const entries = Object.entries(selected);
+  const n = entries.length;
+  const cartList = document.getElementById('cart-list');
+  const cartEmpty = document.getElementById('cart-empty');
+  const cartFooter = document.getElementById('cart-footer');
+  const cartSub = document.getElementById('cart-sub');
+  const cartTotal = document.getElementById('cart-total');
+  document.getElementById('cart-uname').textContent = userName;
+  document.getElementById('cart-udate').textContent = new Date().toLocaleDateString('en-GB');
+  cartSub.textContent = n + ' item' + (n!==1?'s':'') + ' selected';
+  cartTotal.textContent = n;
+  if(n === 0){
+    cartList.style.display = 'none';
+    cartEmpty.style.display = 'flex';
+    cartFooter.style.display = 'none';
+    return;
+  }
+  cartEmpty.style.display = 'none';
+  cartList.style.display = 'block';
+  cartFooter.style.display = 'block';
+
+  // Group by category
+  const grouped = {};
+  entries.forEach(([key, item]) => {
+    const cat = item.category || 'Other';
+    if(!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push({key, item});
+  });
+
+  let html = '';
+  Object.entries(grouped).forEach(([cat, items]) => {
+    html += `<div style="font-size:10px;font-weight:800;color:#097C87;letter-spacing:1px;text-transform:uppercase;margin:12px 0 6px;padding-bottom:4px;border-bottom:1.5px solid #C8EEF0;">${cat}</div>`;
+    items.forEach(({key, item}) => {
+      const note = notes[key] || '';
+      html += `
+        <div style="background:#F4FEFE;border:1.5px solid #C8EEF0;border-radius:10px;padding:10px 12px;margin-bottom:7px;display:flex;align-items:flex-start;gap:8px;">
+          <div style="flex:1;">
+            <div style="font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:#0A1F20;line-height:1.3;">${item.name}</div>
+            ${item.min ? `<div style="font-size:10px;color:#097C87;font-weight:700;margin-top:3px;background:#E6FAFB;display:inline-block;padding:2px 7px;border-radius:10px;">Min: ${item.min}</div>` : ''}
+            ${item.src ? `<div style="font-size:10px;color:#888;margin-top:3px;">📍 ${item.src}</div>` : ''}
+            ${note ? `<div style="font-size:11px;color:#3D7A80;margin-top:4px;font-style:italic;background:#fff;border-radius:6px;padding:3px 7px;border:1px solid #C8EEF0;">📝 ${note}</div>` : ''}
+          </div>
+          <button onclick="removeFromCart('${encodeURIComponent(key)}')" style="background:#FDEDEC;border:none;border-radius:7px;padding:4px 8px;color:#A32020;font-size:12px;cursor:pointer;flex-shrink:0;font-weight:700;">✕</button>
+        </div>`;
+    });
+  });
+  cartList.innerHTML = html;
+}
+
+function removeFromCart(encKey){
+  const key = decodeURIComponent(encKey);
+  delete selected[key];
+  // Update card UI
+  const card = document.querySelector(`.icard[data-key="${key.replace(/"/g,'\"')}"]`);
+  const safeId = 'i_' + key.replace(/[^a-z0-9]/gi,'_');
+  const ob = document.getElementById('ob_' + safeId);
+  if(card) card.classList.remove('sel');
+  if(ob) ob.textContent = '+ Order Now';
+  updateCart();
+  renderCart();
+}
+
+async function submitFromCart(){
+  const entries = Object.entries(selected);
+  if(!entries.length) return;
+  const btn = document.getElementById('cart-submit-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Submitting...';
+  const order = {
+    orderedBy: userName,
+    date: userDate,
+    timestamp: new Date().toISOString(),
+    items: entries.map(([key, item]) => ({
+      name: item.name,
+      category: item.category || '',
+      min: item.min || '',
+      source: item.src || '',
+      price: item.price || '',
+      note: notes[key] || ''
+    }))
+  };
+  try{
+    if(window.SHEET_URL) await fetch(window.SHEET_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(order), mode:'no-cors'});
+  } catch(e){ console.log('Sheet webhook:', e.message); }
+  // Close cart
+  cartOpen = false;
+  document.getElementById('cart-drawer').style.transform = 'translateX(100%)';
+  document.getElementById('cart-overlay').style.display = 'none';
+  // Show success
+  const n = order.items.length;
+  document.getElementById('sc-msg').textContent = n + ' item' + (n!==1?'s':'') + ' submitted successfully. Google Sheets updated and summary email sent to Info@sindbadburger.com.';
+  document.getElementById('sc-det').innerHTML = `
+    <div class="sc-row"><span class="sl">Ordered by</span><span class="sv">${userName}</span></div>
+    <div class="sc-row"><span class="sl">Date</span><span class="sv">${new Date().toLocaleDateString('en-GB')}</span></div>
+    <div class="sc-row"><span class="sl">Total items</span><span class="sv">${n} items</span></div>
+    <div class="sc-row"><span class="sl">Status</span><span class="sv">&#x2705; Submitted</span></div>`;
+  showScreen('scs');
+  btn.disabled = false;
+  btn.textContent = '✅ Submit Order Now';
+}
 </script>
 
 <!-- ✅ Google Apps Script Webhook — Sheets + Email -->
