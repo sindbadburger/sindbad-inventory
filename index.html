@@ -215,7 +215,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <div class="htitle">Sindbad <em>Inventory</em></div>
     </div>
     <div class="hacts">
-      <button class="hcart" id="cbtn" style="display:none" onclick="goReview()">🛒 Review Order <span class="hbadge" id="ccnt">0</span></button>
+      <button class="hcart" id="cbtn" style="display:none" onclick="toggleCart()">🛒 Cart <span class="hbadge" id="ccnt">0</span></button>
       <button class="hexbtn" onclick="logout()">← Exit</button>
     </div>
   </div>
@@ -299,6 +299,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 <script>
 const PIN = '1981';
+let cartOpen = false;
 let pinBuf = '';
 let userName = '', userDate = '';
 let selected = {}, notes = {};
@@ -682,7 +683,6 @@ function resetAll(){selected={};notes={};userName='';pinBuf='';updateDots();docu
 function logout(){if(Object.keys(selected).length&&!confirm('Items selected — exit anyway?'))return;resetAll();}
 
 // ── CART DRAWER ──────────────────────────────────────────────
-let cartOpen = false;
 function toggleCart(){
   cartOpen = !cartOpen;
   const drawer = document.getElementById('cart-drawer');
