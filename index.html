@@ -585,7 +585,7 @@ function buildPanels(){
           </div>
         </div>
         <div class="ic-foot">
-          <button class="obtn" id="ob_${safeId}" onclick="toggleSel('${encodeURIComponent(key)}',${ci},'${encodeURIComponent(item.name)}',${JSON.stringify(item).replace(/'/g,"\\'")})">${isSel?'✓ Added':'+ Order Now'}</button>
+          <button class="obtn" id="ob_${safeId}" onclick="toggleSel('${encodeURIComponent(key)}',${ci})">${isSel?'✓ Added':'+ Order Now'}</button>
           <button class="nbtn${hasNote?' on':''}" id="nb_${safeId}" onclick="toggleNote('${safeId}')">📝</button>
         </div>
         <div class="narea${hasNote?' open':''}" id="na_${safeId}">
@@ -596,11 +596,12 @@ function buildPanels(){
   });
 }
 
-function toggleSel(encKey,ci,encName,itemData){
+function toggleSel(encKey,ci){
   const key=decodeURIComponent(encKey);
   if(selected[key]){delete selected[key];}
   else{
-    const item = typeof itemData==='object'?itemData:{name:decodeURIComponent(encName)};
+    const itemName = key.split('::')[1];
+    const item = CATS[ci].items.find(i=>i.name===itemName) || {name:itemName};
     selected[key]={...item,category:CATS[ci].label};
   }
   const card=document.querySelector(`.icard[data-key="${key.replace(/"/g,'\\"')}"]`);
