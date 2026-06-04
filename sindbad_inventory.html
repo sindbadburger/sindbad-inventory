@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sindbad Burger — Inventory</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --turq:#23CED9;--turq-l:#40E0D0;--turq-d:#097C87;--turq-p:#E6FAFB;
+  --gold:#C8922A;--gold-l:#E8B84B;--gold-p:#FDF6E8;--gold-d:#7A5418;
+  --bg:#F4FEFE;--surf:#FFFFFF;--surf2:#EBF9FA;--border:#C8EEF0;
+  --text:#0A1F20;--muted:#3D7A80;--hint:#7ABFC4;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── SCREENS ── */
+.screen{display:none;flex-direction:column;min-height:100vh}
+.screen.active{display:flex}
+
+/* ── PIN ── */
+#ps{background:var(--turq-d);align-items:center;justify-content:center;padding:2rem 1rem}
+.pc{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25);border-radius:22px;padding:2.5rem 2rem;width:320px;text-align:center;backdrop-filter:blur(8px)}
+.logo-wrap{width:96px;height:96px;border-radius:50%;overflow:hidden;border:3px solid var(--turq-l);margin:0 auto 1.25rem;background:rgba(255,255,255,.15)}
+.logo-wrap img{width:100%;height:100%;object-fit:cover}
+.pt{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:3px}
+.pt span{color:var(--turq-l)}
+.ps2{font-size:11px;color:rgba(255,255,255,.55);margin-bottom:1.5rem;letter-spacing:1.5px;text-transform:uppercase}
+.dots{display:flex;justify-content:center;gap:12px;margin-bottom:1.5rem}
+.dot{width:13px;height:13px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35);transition:.2s}
+.dot.on{background:#fff;border-color:#fff}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.k{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:13px;font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:#fff;cursor:pointer;transition:.15s;user-select:none}
+.k:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4)}
+.k:active{transform:scale(.93);background:var(--gold);color:#fff;border-color:var(--gold)}
+.k.emp{pointer-events:none;background:transparent;border-color:transparent}
+.perr{font-size:12px;color:#FFB3B3;margin-top:10px;min-height:18px;font-weight:600}
+@keyframes sh{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.shake{animation:sh .3s}
+
+/* ── NAME ── */
+#ns{background:var(--turq-d);align-items:center;justify-content:center;padding:2rem 1rem}
+.nc{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:22px;padding:2.5rem 2rem;width:340px}
+.nc-logo{width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid var(--turq-l);margin:0 auto 1.25rem;background:rgba(255,255,255,.15)}
+.nc-logo img{width:100%;height:100%;object-fit:cover}
+.nc h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;text-align:center;margin-bottom:6px}
+.nc p{font-size:12px;color:rgba(255,255,255,.55);text-align:center;margin-bottom:1.5rem;letter-spacing:.5px}
+.fg{margin-bottom:1rem}
+.fg label{display:block;font-size:10px;font-weight:700;color:var(--turq-l);margin-bottom:6px;letter-spacing:1.2px;text-transform:uppercase}
+.fg input{width:100%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:10px 14px;font-family:'Inter',sans-serif;font-size:14px;color:#fff;outline:none;transition:border .15s}
+.fg input::placeholder{color:rgba(255,255,255,.3)}
+.fg input:focus{border-color:var(--turq-l)}
+.fg input[readonly]{opacity:.55;cursor:default}
+.go-btn{width:100%;background:var(--gold);color:#fff;border:none;border-radius:12px;padding:13px;font-family:'Playfair Display',serif;font-size:17px;font-weight:700;cursor:pointer;transition:.15s;margin-top:4px}
+.go-btn:hover{background:var(--gold-l)}
+
+/* ── HEADER ── */
+#ivs{background:var(--bg)}
+.app-hdr{background:var(--turq-d);padding:0 1.25rem;display:flex;align-items:center;justify-content:space-between;height:60px;border-bottom:1px solid rgba(255,255,255,.15)}
+.hbrand{display:flex;align-items:center;gap:10px}
+.hlogo{width:36px;height:36px;border-radius:50%;overflow:hidden;border:1.5px solid var(--turq-l);background:rgba(255,255,255,.15)}
+.hlogo img{width:100%;height:100%;object-fit:cover}
+.htitle{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:#fff}
+.htitle em{color:var(--turq-l);font-style:normal}
+.hacts{display:flex;gap:8px;align-items:center}
+.hcart{background:var(--gold);color:#fff;border:none;border-radius:10px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:.15s}
+.hcart:hover{background:var(--gold-l)}
+.hbadge{background:rgba(0,0,0,.25);color:#fff;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:800}
+.hexbtn{background:none;border:1px solid rgba(255,255,255,.3);border-radius:9px;padding:6px 12px;font-size:11px;color:rgba(255,255,255,.7);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;transition:.15s}
+.hexbtn:hover{border-color:var(--turq-l);color:#fff}
+.ubar{background:var(--turq);border-bottom:1px solid rgba(9,124,135,.2);padding:8px 1.25rem;display:flex;align-items:center;justify-content:space-between}
+.uname-show{display:flex;align-items:center;gap:8px}
+.uavatar{width:26px;height:26px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.unm{font-size:13px;font-weight:700;color:var(--text)}
+.udt{font-size:11px;color:var(--muted);letter-spacing:.3px;font-weight:600}
+
+/* ── TABS ── */
+.tab-rail{background:var(--turq-d);border-bottom:2px solid rgba(255,255,255,.12);overflow-x:auto;white-space:nowrap;display:flex}
+.tab-rail::-webkit-scrollbar{height:3px}.tab-rail::-webkit-scrollbar-thumb{background:var(--turq-l);border-radius:3px}
+.tab{display:inline-flex;align-items:center;gap:5px;padding:0 16px;height:44px;font-size:12px;font-weight:600;color:rgba(255,255,255,.45);cursor:pointer;border-bottom:2.5px solid transparent;transition:.15s;white-space:nowrap;flex-shrink:0}
+.tab .ticon{font-size:14px}
+.tab:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.07)}
+.tab.active{color:#fff;border-bottom-color:var(--gold-l);background:rgba(255,255,255,.1)}
+.tab .tcnt{font-size:10px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);border-radius:8px;padding:1px 5px;font-weight:700}
+.tab.active .tcnt{background:var(--gold);color:#fff}
+
+/* ── SEARCH ── */
+.srch-wrap{padding:.75rem 1.25rem;background:var(--surf2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.srch-inp{width:100%;background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:8px 14px 8px 36px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border .15s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%237ABFC4' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:11px center}
+.srch-inp:focus{border-color:var(--turq)}
+
+/* ── PANELS ── */
+.tab-panel{display:none;padding:1.25rem;max-width:900px;margin:0 auto;width:100%}
+.tab-panel.active{display:block}
+.cat-intro{display:flex;align-items:center;gap:12px;margin-bottom:1.25rem;padding:.875rem 1rem;background:#fff;border-radius:14px;border:1px solid var(--border)}
+.cii{font-size:26px;width:44px;height:44px;background:var(--turq-p);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ci-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text)}
+.ci-sub{font-size:11px;color:var(--muted);margin-top:2px;font-weight:500}
+.igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.icard{background:#fff;border-radius:14px;border:1.5px solid var(--border);transition:all .18s;overflow:hidden}
+.icard:hover{border-color:var(--turq);box-shadow:0 2px 14px rgba(35,206,217,.15)}
+.icard.sel{border-color:var(--gold);background:var(--gold-p)}
+.ic-top{padding:.875rem .875rem .625rem}
+.ic-name{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:8px}
+.itags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:.75rem}
+.itag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.3px}
+.itag.min{background:var(--turq-p);color:var(--turq-d);border:1px solid rgba(35,206,217,.3)}
+.itag.src{background:#F2F2F2;color:#555;border:1px solid #E0E0E0}
+.itag.price{background:var(--gold-p);color:var(--gold-d);border:1px solid rgba(200,146,42,.3)}
+.ic-foot{background:var(--surf2);border-top:1px solid var(--border);padding:.625rem .875rem;display:flex;gap:7px}
+.obtn{flex:1;background:var(--turq-d);color:#fff;border:none;border-radius:8px;padding:8px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;letter-spacing:.3px}
+.obtn:hover{background:var(--turq)}
+.icard.sel .obtn{background:var(--gold);color:#fff}
+.icard.sel .obtn:hover{background:var(--gold-l)}
+.nbtn{background:#fff;color:var(--muted);border:1.5px solid var(--border);border-radius:8px;padding:8px 9px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;font-family:'Inter',sans-serif}
+.nbtn:hover,.nbtn.on{background:var(--turq-p);border-color:var(--turq);color:var(--turq-d)}
+.narea{padding:0 .875rem;max-height:0;overflow:hidden;transition:max-height .25s}
+.narea.open{max-height:80px;padding:.5rem .875rem .875rem}
+.narea textarea{width:100%;background:var(--turq-p);border:1px solid rgba(35,206,217,.3);border-radius:8px;padding:7px 10px;font-family:'Inter',sans-serif;font-size:12px;color:var(--text);resize:none;outline:none}
+.narea textarea:focus{border-color:var(--turq-d)}
+.empty-cat{text-align:center;padding:3rem 1rem;color:var(--hint);font-size:13px;font-weight:500}
+
+/* ── BOTTOM BAR ── */
+.bbar{background:var(--turq-d);border-top:2px solid rgba(255,255,255,.15);padding:10px 1.25rem;display:none;align-items:center;justify-content:space-between;gap:10px;position:sticky;bottom:0;z-index:100}
+.bbar.vis{display:flex}
+.binfo{font-size:12px;color:rgba(255,255,255,.65);font-weight:500}
+.binfo strong{color:#fff;font-size:14px;font-weight:700}
+.sub-btn{background:var(--gold);color:#fff;border:none;border-radius:11px;padding:10px 24px;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;cursor:pointer;transition:.15s}
+.sub-btn:hover{background:var(--gold-l)}
+
+/* ── REVIEW ── */
+#rvs{background:var(--bg)}
+.rv-body{flex:1;padding:1.25rem;max-width:660px;width:100%;margin:0 auto}
+.rv-hero{background:var(--turq-d);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:1.5rem;margin-bottom:1.25rem;text-align:center}
+.rv-hero-logo{width:56px;height:56px;border-radius:50%;overflow:hidden;border:2px solid var(--turq-l);margin:0 auto 1rem;background:rgba(255,255,255,.15)}
+.rv-hero-logo img{width:100%;height:100%;object-fit:cover}
+.rv-hero h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:4px}
+.rv-hero p{font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.8px;text-transform:uppercase}
+.rv-meta{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:1.25rem}
+.rmc{background:#fff;border-radius:12px;padding:.875rem;border:1px solid var(--border);text-align:center}
+.rmc .rl{font-size:10px;color:var(--hint);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.rmc .rv2{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--text)}
+.rv-t{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:.875rem}
+.rv-item{background:#fff;border-radius:12px;border:1px solid var(--border);padding:.875rem 1rem;margin-bottom:7px;display:flex;align-items:flex-start;gap:10px}
+.rinum{width:24px;height:24px;background:var(--turq-d);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;margin-top:1px}
+.riinfo{flex:1}
+.riname{font-weight:700;font-size:13px;color:var(--text);font-family:'Playfair Display',serif}
+.ricat{font-size:11px;color:var(--turq-d);font-weight:600;margin-top:2px}
+.rinote{font-size:11px;color:var(--muted);margin-top:4px;font-style:italic;background:var(--turq-p);border-radius:5px;padding:3px 8px;display:inline-block}
+.rimin{font-size:11px;color:var(--hint);font-weight:600;flex-shrink:0;text-align:right}
+.rv-acts{display:flex;gap:10px;margin-top:1.25rem;padding-bottom:2rem}
+.bk-btn{flex:1;background:#fff;color:var(--turq-d);border:1.5px solid var(--turq);border-radius:12px;padding:12px;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;cursor:pointer;transition:.15s}
+.bk-btn:hover{background:var(--turq-p)}
+.cnf-btn{flex:2;background:var(--gold);color:#fff;border:none;border-radius:12px;padding:12px;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;cursor:pointer;transition:.15s}
+.cnf-btn:hover{background:var(--gold-l)}
+.cnf-btn:disabled{background:var(--hint);cursor:not-allowed}
+
+/* ── SUCCESS ── */
+#scs{background:var(--turq-d);align-items:center;justify-content:center;padding:2rem 1rem}
+.sc-card{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:22px;padding:2.5rem 2rem;width:360px;text-align:center}
+.sc-logo{width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid var(--turq-l);margin:0 auto 1.25rem;background:rgba(255,255,255,.15)}
+.sc-logo img{width:100%;height:100%;object-fit:cover}
+.sc-check{width:60px;height:60px;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:26px}
+.sc-card h2{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:8px}
+.sc-card p{font-size:13px;color:rgba(255,255,255,.6);margin-bottom:1.25rem;line-height:1.7}
+.sc-det{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:.875rem;margin-bottom:1.25rem;text-align:left}
+.sc-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}
+.sc-row:last-child{margin:0}
+.sc-row .sl{color:rgba(255,255,255,.5);font-weight:500}
+.sc-row .sv{color:var(--turq-l);font-weight:700}
+.new-btn{width:100%;background:var(--gold);color:#fff;border:none;border-radius:12px;padding:13px;font-family:'Playfair Display',serif;font-size:17px;font-weight:700;cursor:pointer;transition:.15s}
+.new-btn:hover{background:var(--gold-l)}
+</style>
+</head>
+<body>
+
+<!-- PIN -->
+<div id="ps" class="screen active">
+  <div class="pc">
+    <div class="logo-wrap"><img src="sindbad.jpg" alt="Sindbad" onerror="this.parentNode.innerHTML='🍔'"></div>
+    <div class="pt">Sindbad <span>Burger</span></div>
+    <div class="ps2">Inventory System · Enter PIN to continue</div>
+    <div class="dots">
+      <div class="dot" id="d0"></div><div class="dot" id="d1"></div>
+      <div class="dot" id="d2"></div><div class="dot" id="d3"></div>
+    </div>
+    <div class="kp">
+      <div class="k" data-v="1">1</div><div class="k" data-v="2">2</div><div class="k" data-v="3">3</div>
+      <div class="k" data-v="4">4</div><div class="k" data-v="5">5</div><div class="k" data-v="6">6</div>
+      <div class="k" data-v="7">7</div><div class="k" data-v="8">8</div><div class="k" data-v="9">9</div>
+      <div class="k emp"></div><div class="k" data-v="0">0</div><div class="k" data-v="del" style="font-size:15px">⌫</div>
+    </div>
+    <div class="perr" id="perr"></div>
+  </div>
+</div>
+
+<!-- NAME -->
+<div id="ns" class="screen">
+  <div class="nc">
+    <div class="nc-logo"><img src="sindbad.jpg" alt="Sindbad" onerror="this.parentNode.innerHTML='🍔'"></div>
+    <h2>Who's placing this order?</h2>
+    <p>Enter your name to start the inventory request</p>
+    <div class="fg"><label>Your Name</label><input type="text" id="uname" placeholder="e.g. Ahmed Al-Rashid" autocomplete="off"></div>
+    <div class="fg"><label>Date</label><input type="text" id="udate" readonly></div>
+    <button class="go-btn" onclick="startApp()">Start Ordering →</button>
+  </div>
+</div>
+
+<!-- INVENTORY -->
+<div id="ivs" class="screen">
+  <div class="app-hdr">
+    <div class="hbrand">
+      <div class="hlogo"><img src="sindbad.jpg" alt="Sindbad" onerror="this.parentNode.innerHTML='🍔'"></div>
+      <div class="htitle">Sindbad <em>Inventory</em></div>
+    </div>
+    <div class="hacts">
+      <button class="hcart" id="cbtn" style="display:none" onclick="goReview()">🛒 Review Order <span class="hbadge" id="ccnt">0</span></button>
+      <button class="hexbtn" onclick="logout()">← Exit</button>
+    </div>
+  </div>
+  <div class="ubar">
+    <div class="uname-show">
+      <div class="uavatar" id="uav">?</div>
+      <div class="unm" id="unm">—</div>
+    </div>
+    <div class="udt" id="udt"></div>
+  </div>
+  <div class="tab-rail" id="tab-rail"></div>
+  <div class="srch-wrap">
+    <input class="srch-inp" id="srch" placeholder="Search items across all categories..." oninput="filterSearch()">
+  </div>
+  <div id="panels-wrap" style="flex:1"></div>
+  <div class="bbar" id="bbar">
+    <div class="binfo"><strong id="bcnt">0</strong> items selected</div>
+    <button class="sub-btn" onclick="goReview()">Review Order →</button>
+  </div>
+</div>
+
+<!-- REVIEW -->
+<div id="rvs" class="screen">
+  <div class="app-hdr">
+    <div class="hbrand">
+      <div class="hlogo"><img src="sindbad.jpg" alt="Sindbad" onerror="this.parentNode.innerHTML='🍔'"></div>
+      <div class="htitle">Review <em>Order</em></div>
+    </div>
+    <div class="hacts"><button class="hexbtn" onclick="showScreen('ivs')">← Back to List</button></div>
+  </div>
+  <div class="rv-body" id="rv-body"></div>
+</div>
+
+<!-- SUCCESS -->
+<div id="scs" class="screen">
+  <div class="sc-card">
+    <div class="sc-logo"><img src="sindbad.jpg" alt="Sindbad" onerror="this.parentNode.innerHTML='🍔'"></div>
+    <div class="sc-check">✅</div>
+    <h2>Order Submitted!</h2>
+    <p id="sc-msg">Your order has been recorded and the team notified.</p>
+    <div class="sc-det" id="sc-det"></div>
+    <button class="new-btn" onclick="resetAll()">+ New Order</button>
+  </div>
+</div>
+
+<script>
+const PIN = '1981';
+let pinBuf = '';
+let userName = '', userDate = '';
+let selected = {}, notes = {};
+let activeTab = 0;
+
+const CATS = [
+  {label:'Misc', icon:'📦', freq:'Check every Sunday', items:[
+    {name:'Receipt paper',min:'44,444 rolls',src:'Casher',price:'$0.85/165ft'},
+    {name:'24 oz cups',min:'3 sets',src:'Costco',price:'$0.096/ct'},
+    {name:'24 oz cup lids',min:'3 sets',src:'Costco',price:'$0.036/ct'},
+    {name:'12 oz cup',min:'3 sets',src:'Storage'},
+    {name:'16 oz cup',min:'3 sets',src:'Storage'},
+    {name:'12 oz lid',min:'3 sets',src:'Storage'},
+    {name:'16 oz cup lid',min:'3 sets',src:'Storage'},
+    {name:'Straws',min:'3 bags'},
+    {name:'Smoothie straws',min:'3 bags',src:'Costco',price:'$0.006/ct'},
+    {name:'Appetizer plate',min:'1 box',src:'Sysco'},
+    {name:'Tray liners',min:'1 set',src:'Storage'},
+    {name:'To go bags',min:'3 sets',src:'Storage'},
+    {name:'Plastic bags',min:'3 sets',src:'Storage'},
+    {name:'Plate inside box',min:'1 set',src:'Rest Depot'},
+    {name:'Small bowl',min:'3 sets',src:'Storage'},
+    {name:'Big bowl',min:'3 sets',src:'Storage'},
+    {name:'Small bowl lid',min:'3 sets',src:'Storage'},
+    {name:'Big bowl lid',min:'3 sets',src:'Storage'},
+    {name:'Napkins',min:'3 sets',src:'Sysco',price:'$0.023/ct'},
+    {name:'Ziplock 1 gal',min:'1 box',src:'Costco',price:'$0.09/ct'},
+    {name:'Plastic wrap',min:'¼ roll',src:'Rest Depot'},
+    {name:'Toilet paper',min:'4 rolls'},
+    {name:'Hand paper towels',min:'4 rolls'},
+    {name:'Sharpie',min:'2 pcs'},
+    {name:'Pens',min:'2 pcs'},
+    {name:'Stapler',min:'1 pc'},
+    {name:'Staples',min:'1 box'},
+    {name:'Printed menu',min:'1 set'},
+    {name:'Forks',min:'¼ box',src:'Sysco',price:'$0.019/ct'},
+    {name:'Knives',min:'¼ box',src:'Sysco',price:'$0.029/ct'},
+    {name:'Spoons',min:'¼ box',src:'Sysco',price:'$0.026/ct'},
+    {name:'Sauce cup',min:'5 sets',src:'Rest Depot'},
+    {name:'Foil wrap',min:'1 bag'},
+    {name:'Foil',min:'¼ roll'},
+    {name:'Big box',min:'10 boxes'},
+    {name:'Small box',min:'10 boxes'},
+    {name:'DoorDash stickers',min:'1 roll',src:'Casher',price:'Free'},
+    {name:'Burger pressing paper',min:'2 small boxes'},
+    {name:'Tissue paper',min:'—',src:'Sysco'},
+    {name:'Kids paper',min:'¼ box'},
+    {name:'Crayon',min:'1 box'},
+  ]},
+  {label:'Cleaning', icon:'🧹', freq:'Check every Sunday', items:[
+    {name:'Gloves L/XL',min:'4 small boxes',src:'Rest Depot',price:'$6.06/100ct'},
+    {name:'Gloves M',min:'4 small boxes',src:'Rest Depot',price:'$6.06/100ct'},
+    {name:'Big trash bags 60 gal',min:'1 box (50 bags)',src:'Sysco',price:'$34.75/100ct'},
+    {name:'Small trash bags',min:'1 box (50 bags)',src:'Costco',price:'$20.19/200ct'},
+    {name:'Hand soap',min:'1 bottle'},
+    {name:'Stainless steel cleaner',min:'2 cubes',src:'Sysco',price:'$9.41/16oz'},
+    {name:'Paper towels',min:'—'},
+    {name:'Dish soap',min:'1 bottle',src:'Costco',price:'$18.79/gal'},
+    {name:'Liquid pot & pan detergent',min:'1 bottle'},
+    {name:'Bleach',min:'1 bottle',src:'Sysco',price:'$4.34/128oz'},
+    {name:'Grill scrubber',min:'2 cubes',price:'$2.27/each'},
+    {name:'Febreze',min:'1 bottle'},
+    {name:'Lysol toilet cleaner',min:'1 bottle',src:'Costco',price:'$3.57/32oz'},
+    {name:'Cleaning sponge',min:'1 set',src:'Costco',price:'$0.53/each'},
+    {name:'Window cleaner',min:'1 bottle',price:'$2.75/23oz'},
+    {name:'Rag',min:'1 set',src:'Sysco',price:'$1.40/each'},
+    {name:'Stainless steel scrubbers',min:'2 pcs'},
+    {name:'Multi quat sanitizer',min:'1 bottle'},
+  ]},
+  {label:'Proteins', icon:'🥩', freq:'Check every day', items:[
+    {name:'Beef (Ground)',min:'20 lbs',src:'Oasis',price:'$5.49/lb'},
+    {name:'Ground chicken',min:'1 bag',src:'Oasis'},
+    {name:'Chicken tender',min:'3 bags',src:'Costco',price:'$3.24/lb'},
+    {name:'Shawarma',min:'2 Sheesh',src:'Oasis'},
+    {name:'Chicken breast (grilled)',min:'1 bag',price:'$3.24/lb'},
+    {name:'Wagyu beef',min:'10 lbs'},
+    {name:'Beef bacon',min:'1 bag',src:'Costco',price:'$47.99/5lb'},
+    {name:'Veggie burger patty',min:'1 bag',price:'$18.19/10ct'},
+  ]},
+  {label:'Produce', icon:'🥬', freq:'Check every day', items:[
+    {name:'Cucumber',min:'1 lb',src:'Oasis'},
+    {name:'Tomato',min:'½ box',src:'Oasis'},
+    {name:'Hot pepper',min:'3 pcs',src:'Oasis'},
+    {name:'Bell pepper',min:'3 pcs',src:'Oasis'},
+    {name:'Pomegranate',min:'3 pcs',src:'Oasis'},
+    {name:'Carrot',min:'1 small bag',src:'Oasis'},
+    {name:'Yellow onion',min:'10 pcs'},
+    {name:'Red onion',min:'10 pcs',src:'Oasis'},
+    {name:'Eggplant',min:'3 pcs',src:'Oasis'},
+    {name:'Cauliflower',min:'3 pcs',src:'Oasis'},
+    {name:'Potato',min:'6 pcs',src:'Costco',price:'$9.99/10lb'},
+    {name:'Parsley',min:'1 bowl',src:'Oasis'},
+    {name:'Mushrooms',min:'½ box',src:'Sysco',price:'$25.69/10lb'},
+    {name:'American parsley',min:'1 bowl',src:'Oasis'},
+    {name:'Coriander',min:'1 bunch',src:'Oasis'},
+    {name:'Lettuce',min:'½ box',src:'Sysco',price:'$30.64/24ct'},
+    {name:'Spring mix',min:'1 box',src:'Sysco',price:'$10.75/3lb'},
+    {name:'Red cabbage',min:'1 pc',src:'Oasis'},
+    {name:'White cabbage',min:'1 pc',src:'Oasis'},
+    {name:'Chickpea',min:'1 bag',src:'Costco',price:'$23.59/25lb'},
+    {name:'Peeled garlic',min:'½ bag',src:'Costco',price:'$3.80/lb'},
+  ]},
+  {label:'Pickles & Sauces', icon:'🫙', freq:'Check every day', items:[
+    {name:'Burger pickles',min:'1 tub',src:'Costco',price:'$34.99/5gal'},
+    {name:'Shawarma pickles',min:'1 tub'},
+    {name:'Beet (pickled)',min:'1 tub'},
+    {name:'Turnip (pickled)',min:'1 tub'},
+    {name:'Jalapeño',min:'1 tub',src:'Costco',price:'$7.59/gal'},
+    {name:'Ketchup',min:'3 bottles',src:'Costco',price:'$12.39/114oz'},
+    {name:'Mayo',min:'4 bottles',src:'Costco',price:'$16.99/gal'},
+    {name:'Mayo small packs',min:'1 box',src:'Costco',price:'$0.071/ct'},
+    {name:'Mustard',min:'2 bottles',src:'Costco',price:'$3.25/30oz'},
+    {name:'Iraqi BBQ sauce',min:'4 bottles',src:'Oasis'},
+    {name:'Mango sauce',min:'4 bottles',src:'Oasis'},
+    {name:'Buffalo sauce',min:'½ big bottle'},
+    {name:'BBQ sauce',min:'½ big bottle',price:'$13.59/gal'},
+    {name:'Steak sauce',min:'4 small bottles'},
+    {name:'Olive oil',min:'2 bottles',src:'Costco',price:'$19.99/5.4oz'},
+    {name:'Vegetable oil',min:'2 bottles',src:'Costco',price:'$6.59/1.5qt'},
+    {name:'Cannoli frying oil',min:'3 bottles'},
+    {name:'Soy sauce',min:'½ big bottle',price:'$14.79/gal'},
+    {name:'Apple cider vinegar',min:'1 bottle'},
+    {name:'White vinegar',min:'1 bottle',src:'Costco',price:'$3.50/gal'},
+    {name:'Soda packets',min:'½ bottle',src:'Sysco',price:'$23.87/gal'},
+  ]},
+  {label:'Spices & Dry', icon:'🧂', freq:'Check every day', items:[
+    {name:'Burger seasoning',min:'1 tub',src:'Oasis'},
+    {name:'Sea salt',min:'1 can',src:'Costco',price:'$1.00/lb'},
+    {name:'Salt',min:'1 can',src:'Costco',price:'$6.89/25lb'},
+    {name:'Pepper',min:'¼ big can',src:'Costco',price:'$34.49/5lb'},
+    {name:'Crushed red pepper',min:'¼ big can',src:'Costco',price:'$17.49/3.5lb'},
+    {name:'Chili powder',min:'¼ big can',src:'Costco',price:'$7.19/20oz'},
+    {name:'White pepper',min:'¼ big can',src:'Costco',price:'$15.79/18oz'},
+    {name:'Garlic powder',min:'¼ big can',src:'Costco',price:'$37.19/7lb'},
+    {name:'Paprika',min:'¼ big can',src:'Costco',price:'$23.29/5lb'},
+    {name:'Onion powder',min:'¼ big can',src:'Costco',price:'$22.59/6lb'},
+    {name:'Turmeric',min:'¼ big can',src:'Oasis'},
+    {name:'Curry powder',min:'¼ big can',src:'Oasis'},
+    {name:'Cinnamon',min:'¼ big can',src:'Costco',price:'$22.59/5lb'},
+    {name:'Cumin',min:'¼ big can',src:'Costco',price:'$7.59/14oz'},
+    {name:'Hot pepper (ground)',min:'1 lb',src:'Costco',price:'$10.59/5lb'},
+    {name:'Dry mint',min:'1 bag'},
+    {name:'Sumac',min:'1 bag'},
+    {name:'Dry coriander',min:'1 can'},
+    {name:'Lemon salt',min:'1 can'},
+    {name:'Ginger powder',min:'1 can'},
+    {name:'Italian seasoning',min:'¼ big tub'},
+    {name:'Tajin',min:'4 bottles',src:'Costco',price:'$3.38/14oz'},
+    {name:'Brown sugar',min:'½ bag'},
+    {name:'Panko',min:'1 bag',src:'Sysco',price:'$33.55/25lb'},
+    {name:'Flour',min:'1 bag',src:'Sysco',price:'$16.89/50lb'},
+    {name:'Cornflour',min:'1 big can'},
+    {name:'Baking soda',min:'1 can'},
+    {name:'Bulgur',min:'1 bag'},
+    {name:'Rice',min:'½ bag'},
+    {name:'Macaroni',min:'2 bags'},
+  ]},
+  {label:'Dairy & Cheese', icon:'🧀', freq:'Check every day', items:[
+    {name:'Swiss cheese',min:'1 cube',src:'Costco'},
+    {name:'Cream cheese',min:'1 cube',src:'Costco',price:'$10.69/48oz'},
+    {name:'American cheese',min:'1 cube',src:'Costco',price:'$14.79/5lb'},
+    {name:'Pepper jack',min:'½ cube',src:'Costco',price:'$5.89/1.5lb'},
+    {name:'Cheddar cheese',min:'½ cube'},
+    {name:'Velveeta cheese',min:'1 cube',price:'$22.49/5lb'},
+    {name:'Parmesan cheese',min:'1 bag',src:'Costco',price:'$25.99/4.5lb'},
+    {name:'Sour cream',min:'½ tub',src:'Sysco',price:'$16.80/10lb'},
+    {name:'Heavy cream',min:'1 bottle',price:'$5.29/32oz'},
+    {name:'Butter',min:'5 cubes',src:'Sysco',price:'$123.11/36lb'},
+    {name:'Buttermilk',min:'1 bottle',src:'Costco',price:'$3.69/0.5gal'},
+    {name:'Plain yogurt',min:'1 tub',src:'Costco',price:'$48.99/32lb'},
+    {name:'Egg',min:'10 eggs',src:'Costco',price:'$14.99/5dz'},
+  ]},
+  {label:'Frozen & Fry', icon:'🍟', freq:'Check every day', items:[
+    {name:'Fries',min:'3 boxes',src:'Sysco',price:'$52.15/30lb'},
+    {name:'Steak fries',min:'½ box',src:'Sysco',price:'$37.30/30lb'},
+    {name:'Onion rings',min:'2 bags',src:'Costco',price:'$11.09/40oz'},
+    {name:'Grilled eggplant (canned)',min:'1 can',src:'Oasis'},
+    {name:'Foul (canned)',min:'3 cans'},
+    {name:'Canned green beans',min:'1 can',src:'Costco',price:'$5.79/6lb'},
+    {name:'Red kidney beans',min:'1 can'},
+  ]},
+  {label:'Bread & Wraps', icon:'🥖', freq:'Check every day', items:[
+    {name:'Sesame bun',min:'75 buns'},
+    {name:'Plain bun',min:'50 buns'},
+    {name:'Mini bun',min:'50 buns'},
+    {name:'Tortilla wrap',min:'1 bag'},
+    {name:'Shawarma bread',min:'2 bags'},
+    {name:'Lemon juice',min:'3 bottles',src:'Costco',price:'$3.05/48oz'},
+    {name:'Lays chips',min:'4 bags',src:'Sysco',price:'$4.62/16oz'},
+    {name:'Cooking spray',min:'4 bottles',src:'Sysco',price:'$5.44/17oz'},
+  ]},
+];
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// PIN
+document.querySelectorAll('.k').forEach(k=>{
+  k.addEventListener('click',()=>{
+    const v = k.dataset.v;
+    if(v==='del'){if(pinBuf.length)pinBuf=pinBuf.slice(0,-1);}
+    else if(pinBuf.length<4) pinBuf+=v;
+    updateDots();
+    if(pinBuf.length===4) checkPin();
+  });
+});
+function updateDots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('on',i<pinBuf.length);}
+function checkPin(){
+  if(pinBuf===PIN){
+    document.getElementById('perr').textContent='';
+    userDate = new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    document.getElementById('udate').value = userDate;
+    setTimeout(()=>showScreen('ns'),150);
+  } else {
+    document.getElementById('perr').textContent='Incorrect PIN — try again';
+    document.querySelectorAll('.dot').forEach(d=>{d.classList.add('shake');setTimeout(()=>d.classList.remove('shake'),400);});
+    pinBuf=''; setTimeout(updateDots,120);
+  }
+}
+
+function startApp(){
+  const n = document.getElementById('uname').value.trim();
+  if(!n){document.getElementById('uname').style.borderColor='#E57373';document.getElementById('uname').focus();return;}
+  document.getElementById('uname').style.borderColor='';
+  userName=n;
+  document.getElementById('unm').textContent=n;
+  document.getElementById('udt').textContent=userDate;
+  document.getElementById('uav').textContent=n.charAt(0).toUpperCase();
+  buildTabs();
+  buildPanels();
+  showScreen('ivs');
+}
+
+function buildTabs(){
+  const rail = document.getElementById('tab-rail');
+  rail.innerHTML='';
+  CATS.forEach((cat,i)=>{
+    const t = document.createElement('div');
+    t.className='tab'+(i===0?' active':'');
+    t.dataset.idx=i;
+    t.innerHTML=`<span class="ticon">${cat.icon}</span>${cat.label}<span class="tcnt">${cat.items.length}</span>`;
+    t.onclick=()=>setTab(i);
+    rail.appendChild(t);
+  });
+}
+
+function setTab(i){
+  activeTab=i;
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+  document.querySelectorAll('.tab-panel').forEach((p,j)=>p.classList.toggle('active',j===i));
+  document.getElementById('srch').value='';
+  document.querySelectorAll('.icard').forEach(c=>c.style.display='');
+}
+
+function buildPanels(){
+  const wrap = document.getElementById('panels-wrap');
+  wrap.innerHTML='';
+  CATS.forEach((cat,ci)=>{
+    const panel = document.createElement('div');
+    panel.className='tab-panel'+(ci===0?' active':'');
+    panel.innerHTML=`<div class="cat-intro"><div class="cii">${cat.icon}</div><div><div class="ci-title">${cat.label}</div><div class="ci-sub">${cat.freq} · ${cat.items.length} items</div></div></div><div class="igrid" id="grid-${ci}"></div>`;
+    wrap.appendChild(panel);
+    const grid = document.getElementById('grid-'+ci);
+    cat.items.forEach(item=>{
+      const key = ci+'::'+item.name;
+      const isSel = !!selected[key];
+      const hasNote = !!(notes[key]&&notes[key].trim());
+      const safeId = 'i_'+key.replace(/[^a-z0-9]/gi,'_');
+      const card = document.createElement('div');
+      card.className='icard'+(isSel?' sel':'');
+      card.dataset.key=key;
+      card.dataset.name=item.name.toLowerCase();
+      card.innerHTML=`
+        <div class="ic-top">
+          <div class="ic-name">${item.name}</div>
+          <div class="itags">
+            ${item.min?`<span class="itag min">Min: ${item.min}</span>`:''}
+            ${item.src?`<span class="itag src">${item.src}</span>`:''}
+            ${item.price?`<span class="itag price">${item.price}</span>`:''}
+          </div>
+        </div>
+        <div class="ic-foot">
+          <button class="obtn" id="ob_${safeId}" onclick="toggleSel('${encodeURIComponent(key)}',${ci},'${encodeURIComponent(item.name)}',${JSON.stringify(item).replace(/'/g,"\\'")})">${isSel?'✓ Added':'+ Order Now'}</button>
+          <button class="nbtn${hasNote?' on':''}" id="nb_${safeId}" onclick="toggleNote('${safeId}')">📝</button>
+        </div>
+        <div class="narea${hasNote?' open':''}" id="na_${safeId}">
+          <textarea rows="2" placeholder="Add a note..." onchange="saveNote('${encodeURIComponent(key)}','${safeId}')" oninput="saveNote('${encodeURIComponent(key)}','${safeId}')">${notes[key]||''}</textarea>
+        </div>`;
+      grid.appendChild(card);
+    });
+  });
+}
+
+function toggleSel(encKey,ci,encName,itemData){
+  const key=decodeURIComponent(encKey);
+  if(selected[key]){delete selected[key];}
+  else{
+    const item = typeof itemData==='object'?itemData:{name:decodeURIComponent(encName)};
+    selected[key]={...item,category:CATS[ci].label};
+  }
+  const card=document.querySelector(`.icard[data-key="${key.replace(/"/g,'\\"')}"]`);
+  const safeId='i_'+key.replace(/[^a-z0-9]/gi,'_');
+  const ob=document.getElementById('ob_'+safeId);
+  if(card){card.classList.toggle('sel',!!selected[key]);}
+  if(ob){ob.textContent=selected[key]?'✓ Added':'+ Order Now';}
+  updateCart();
+}
+
+function toggleNote(safeId){
+  const area=document.getElementById('na_'+safeId);
+  if(area){area.classList.toggle('open');if(area.classList.contains('open'))area.querySelector('textarea').focus();}
+}
+function saveNote(encKey,safeId){
+  const key=decodeURIComponent(encKey);
+  const area=document.getElementById('na_'+safeId);
+  if(area){
+    notes[key]=area.querySelector('textarea').value;
+    const nb=document.getElementById('nb_'+safeId);
+    if(nb)nb.classList.toggle('on',!!(notes[key]&&notes[key].trim()));
+  }
+}
+
+function updateCart(){
+  const n=Object.keys(selected).length;
+  const cb=document.getElementById('cbtn'),cc=document.getElementById('ccnt'),bc=document.getElementById('bcnt');
+  if(cb)cb.style.display=n>0?'flex':'none';
+  if(cc)cc.textContent=n;if(bc)bc.textContent=n;
+  document.getElementById('bbar').classList.toggle('vis',n>0);
+}
+
+function filterSearch(){
+  const q=document.getElementById('srch').value.toLowerCase().trim();
+  if(!q){document.querySelectorAll('.tab-panel').forEach((p,i)=>{p.classList.toggle('active',i===activeTab);});document.querySelectorAll('.icard').forEach(c=>c.style.display='');return;}
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.add('active'));
+  document.querySelectorAll('.icard').forEach(card=>{
+    card.style.display=(!q||card.dataset.name.includes(q))?'':'none';
+  });
+}
+
+function goReview(){
+  const entries=Object.entries(selected);
+  if(!entries.length)return;
+  let html=`<div class="rv-hero"><div class="rv-hero-logo"><img src="sindbad.jpg" alt="Sindbad" onerror="this.parentNode.innerHTML='🍔'"></div><h2>Order Summary</h2><p>Review before submitting</p></div>`;
+  html+=`<div class="rv-meta"><div class="rmc"><div class="rl">Ordered By</div><div class="rv2">${userName}</div></div><div class="rmc"><div class="rl">Date</div><div class="rv2">${new Date().toLocaleDateString('en-GB')}</div></div></div>`;
+  html+=`<div class="rv-t">Items to Order (${entries.length})</div>`;
+  entries.forEach(([key,item],i)=>{
+    const note=notes[key]||'';
+    const srcTxt=item.src?' · '+item.src:'';
+    html+=`<div class="rv-item"><div class="rinum">${i+1}</div><div class="riinfo"><div class="riname">${item.name}</div><div class="ricat">${item.category||''}${srcTxt}</div>${note?`<div class="rinote">📝 ${note}</div>`:''}</div><div class="rimin">Min:<br>${item.min||'—'}</div></div>`;
+  });
+  html+=`<div class="rv-acts"><button class="bk-btn" onclick="showScreen('ivs')">← Add More</button><button class="cnf-btn" id="cnf" onclick="submitOrder()">✅ Confirm & Submit</button></div>`;
+  document.getElementById('rv-body').innerHTML=html;
+  showScreen('rvs');
+}
+
+async function submitOrder(){
+  const btn=document.getElementById('cnf');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Submitting...';}
+  const order={orderedBy:userName,date:userDate,timestamp:new Date().toISOString(),items:Object.entries(selected).map(([key,item])=>({name:item.name,category:item.category||'',min:item.min||'',source:item.src||'',price:item.price||'',note:notes[key]||''}))};
+  try{
+    if(window.SHEET_URL)await fetch(window.SHEET_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(order)});
+    if(window.EMAIL_URL)await fetch(window.EMAIL_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(order)});
+  }catch(e){console.log('Webhook:',e.message);}
+  const n=order.items.length;
+  document.getElementById('sc-msg').textContent=`${n} item${n!==1?'s':''} submitted. Google Sheets updated and email notification sent.`;
+  document.getElementById('sc-det').innerHTML=`<div class="sc-row"><span class="sl">Ordered by</span><span class="sv">${userName}</span></div><div class="sc-row"><span class="sl">Date</span><span class="sv">${new Date().toLocaleDateString('en-GB')}</span></div><div class="sc-row"><span class="sl">Total items</span><span class="sv">${n} items</span></div><div class="sc-row"><span class="sl">Status</span><span class="sv">✅ Submitted</span></div>`;
+  showScreen('scs');
+}
+
+function resetAll(){selected={};notes={};userName='';pinBuf='';updateDots();document.getElementById('uname').value='';document.getElementById('perr').textContent='';updateCart();showScreen('ps');}
+function logout(){if(Object.keys(selected).length&&!confirm('Items selected — exit anyway?'))return;resetAll();}
+</script>
+
+<!-- ✅ Google Apps Script Webhook — Sheets + Email -->
+<script>
+  window.SHEET_URL = 'https://script.google.com/macros/s/AKfycbz52rJNXlMIa_fDUQ23-HQIkWhllaF4femClr5Kh0lX2KprIcwCa5U7KwK59CaISoOeyg/exec';
+</script>
+
+</body>
+</html>
