@@ -6,18 +6,18 @@
 <title>Sindbad Burger — Inventory</title>
 
 <!-- Browser tab favicon -->
-<link rel="icon" href="sindbad.jpg" />
-<link rel="shortcut icon" href="sindbad.jpg" />
+<link rel="icon" href="sindbad-inventory.jpg" />
+<link rel="shortcut icon" href="sindbad-inventory.jpg" />
 
 <!-- iOS Home Screen icon -->
-<link rel="apple-touch-icon" href="sindbad.jpg" />
-<link rel="apple-touch-icon" sizes="180x180" href="sindbad.jpg" />
-<link rel="apple-touch-icon" sizes="152x152" href="sindbad.jpg" />
-<link rel="apple-touch-icon" sizes="120x120" href="sindbad.jpg" />
+<link rel="apple-touch-icon" href="sindbad-inventory.jpg" />
+<link rel="apple-touch-icon" sizes="180x180" href="sindbad-inventory.jpg" />
+<link rel="apple-touch-icon" sizes="152x152" href="sindbad-inventory.jpg" />
+<link rel="apple-touch-icon" sizes="120x120" href="sindbad-inventory.jpg" />
 
 <!-- Android Chrome Home Screen icon -->
-<link rel="icon" sizes="192x192" href="sindbad.jpg" />
-<link rel="icon" sizes="512x512" href="sindbad.jpg" />
+<link rel="icon" sizes="192x192" href="sindbad-inventory.jpg" />
+<link rel="icon" sizes="512x512" href="sindbad-inventory.jpg" />
 
 <!-- Open as full-screen app when launched from Home Screen -->
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -49,6 +49,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .pc{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25);border-radius:22px;padding:2.5rem 2rem;width:320px;text-align:center;backdrop-filter:blur(8px)}
 .logo-wrap{width:96px;height:96px;border-radius:50%;overflow:hidden;border:3px solid var(--turq-l);margin:0 auto 1.25rem;background:rgba(255,255,255,.15)}
 .logo-wrap img{width:100%;height:100%;object-fit:cover}
+.app-hero{width:150px;max-width:55vw;height:auto;border-radius:18px;margin:0 auto 1rem;box-shadow:0 8px 28px rgba(0,0,0,.30);display:block}
 .pt{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:3px}
 .pt span{color:var(--turq-l)}
 .ps2{font-size:11px;color:rgba(255,255,255,.55);margin-bottom:1.5rem;letter-spacing:1.5px;text-transform:uppercase}
@@ -203,7 +204,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <!-- PIN -->
 <div id="ps" class="screen active">
   <div class="pc">
-    <div class="logo-wrap"><img src="sindbad.jpg" alt="Sindbad" onerror="this.parentNode.innerHTML='🍔'"></div>
+    <img src="sindbad-inventory.jpg" alt="Sindbad Inventory" class="app-hero" onerror="this.style.display='none'">
     <div class="pt">Sindbad <span>Burger</span></div>
     <div class="ps2">Inventory System · Enter PIN to continue</div>
     <div class="dots">
@@ -223,7 +224,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <!-- NAME -->
 <div id="ns" class="screen">
   <div class="nc">
-    <div class="nc-logo"><img src="sindbad.jpg" alt="Sindbad" onerror="this.parentNode.innerHTML='🍔'"></div>
+    <img src="sindbad-inventory.jpg" alt="Sindbad Inventory" class="app-hero" onerror="this.style.display='none'">
     <h2>Who's placing this order?</h2>
     <p>Enter your name to start the inventory request</p>
     <div class="fg"><label>Your Name</label><input type="text" id="uname" placeholder="e.g. Ahmed Al-Rashid" autocomplete="off"></div>
