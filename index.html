@@ -2,8 +2,33 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Sindbad Burger — Inventory</title>
+
+<!-- Browser tab favicon -->
+<link rel="icon" href="sindbad.jpg" />
+<link rel="shortcut icon" href="sindbad.jpg" />
+
+<!-- iOS Home Screen icon -->
+<link rel="apple-touch-icon" href="sindbad.jpg" />
+<link rel="apple-touch-icon" sizes="180x180" href="sindbad.jpg" />
+<link rel="apple-touch-icon" sizes="152x152" href="sindbad.jpg" />
+<link rel="apple-touch-icon" sizes="120x120" href="sindbad.jpg" />
+
+<!-- Android Chrome Home Screen icon -->
+<link rel="icon" sizes="192x192" href="sindbad.jpg" />
+<link rel="icon" sizes="512x512" href="sindbad.jpg" />
+
+<!-- Open as full-screen app when launched from Home Screen -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Sindbad Inventory" />
+<meta name="application-name" content="Sindbad Inventory" />
+
+<!-- Teal status bar to match the app header -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#097C87" />
+
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -20,7 +45,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .screen.active{display:flex}
 
 /* ── PIN ── */
-#ps{background:var(--turq-d);align-items:center;justify-content:center;padding:2rem 1rem}
+#ps{background:var(--turq-d);align-items:center;justify-content:center;padding:2rem 1rem;padding-top:max(2rem,env(safe-area-inset-top));padding-bottom:max(2rem,env(safe-area-inset-bottom))}
 .pc{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25);border-radius:22px;padding:2.5rem 2rem;width:320px;text-align:center;backdrop-filter:blur(8px)}
 .logo-wrap{width:96px;height:96px;border-radius:50%;overflow:hidden;border:3px solid var(--turq-l);margin:0 auto 1.25rem;background:rgba(255,255,255,.15)}
 .logo-wrap img{width:100%;height:100%;object-fit:cover}
@@ -40,7 +65,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .shake{animation:sh .3s}
 
 /* ── NAME ── */
-#ns{background:var(--turq-d);align-items:center;justify-content:center;padding:2rem 1rem}
+#ns{background:var(--turq-d);align-items:center;justify-content:center;padding:2rem 1rem;padding-top:max(2rem,env(safe-area-inset-top));padding-bottom:max(2rem,env(safe-area-inset-bottom))}
 .nc{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:22px;padding:2.5rem 2rem;width:340px}
 .nc-logo{width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid var(--turq-l);margin:0 auto 1.25rem;background:rgba(255,255,255,.15)}
 .nc-logo img{width:100%;height:100%;object-fit:cover}
@@ -57,7 +82,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 /* ── HEADER ── */
 #ivs{background:var(--bg)}
-.app-hdr{background:var(--turq-d);padding:0 1.25rem;display:flex;align-items:center;justify-content:space-between;height:60px;border-bottom:1px solid rgba(255,255,255,.15)}
+.app-hdr{background:var(--turq-d);padding:env(safe-area-inset-top) 1.25rem 0;display:flex;align-items:center;justify-content:space-between;height:calc(60px + env(safe-area-inset-top));border-bottom:1px solid rgba(255,255,255,.15)}
 .hbrand{display:flex;align-items:center;gap:10px}
 .hlogo{width:36px;height:36px;border-radius:50%;overflow:hidden;border:1.5px solid var(--turq-l);background:rgba(255,255,255,.15)}
 .hlogo img{width:100%;height:100%;object-fit:cover}
@@ -122,7 +147,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .empty-cat{text-align:center;padding:3rem 1rem;color:var(--hint);font-size:13px;font-weight:500}
 
 /* ── BOTTOM BAR ── */
-.bbar{background:var(--turq-d);border-top:2px solid rgba(255,255,255,.15);padding:10px 1.25rem;display:none;align-items:center;justify-content:space-between;gap:10px;position:sticky;bottom:0;z-index:100}
+.bbar{background:var(--turq-d);border-top:2px solid rgba(255,255,255,.15);padding:10px 1.25rem;padding-bottom:max(10px,env(safe-area-inset-bottom));display:none;align-items:center;justify-content:space-between;gap:10px;position:sticky;bottom:0;z-index:100}
 .bbar.vis{display:flex}
 .binfo{font-size:12px;color:rgba(255,255,255,.65);font-weight:500}
 .binfo strong{color:#fff;font-size:14px;font-weight:700}
@@ -157,7 +182,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .cnf-btn:disabled{background:var(--hint);cursor:not-allowed}
 
 /* ── SUCCESS ── */
-#scs{background:var(--turq-d);align-items:center;justify-content:center;padding:2rem 1rem}
+#scs{background:var(--turq-d);align-items:center;justify-content:center;padding:2rem 1rem;padding-top:max(2rem,env(safe-area-inset-top));padding-bottom:max(2rem,env(safe-area-inset-bottom))}
 .sc-card{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:22px;padding:2.5rem 2rem;width:360px;text-align:center}
 .sc-logo{width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid var(--turq-l);margin:0 auto 1.25rem;background:rgba(255,255,255,.15)}
 .sc-logo img{width:100%;height:100%;object-fit:cover}
